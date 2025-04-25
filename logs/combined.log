@@ -1,0 +1,6 @@
+{"level":"info","message":"Test log entry","metadata":{"test":true},"timestamp":"2025-04-25T19:24:46.663Z"}
+{"level":"error","message":"Failed to check system health","metadata":{"error":{}},"timestamp":"2025-04-25T19:24:46.672Z"}
+{"level":"info","message":"Test log entry","metadata":{"test":true},"timestamp":"2025-04-25T19:25:39.771Z"}
+{"level":"error","message":"Failed to check system health","metadata":{"error":{}},"timestamp":"2025-04-25T19:25:39.781Z"}
+{"level":"info","message":"Test log entry","metadata":{"test":true},"timestamp":"2025-04-25T19:28:16.419Z"}
+{"level":"info","message":"Test log entry","metadata":{"test":true},"timestamp":"2025-04-25T19:30:59.619Z"}
