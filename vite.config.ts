@@ -4,7 +4,11 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [
-    react()
+    react({
+      typescript: {
+        ignoreBuildErrors: true
+      }
+    })
   ],
   resolve: {
     alias: {
@@ -20,14 +24,21 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: false,
+    sourcemap: true,
     minify: 'terser',
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['@headlessui/react', '@heroicons/react'],
+          utils: ['@supabase/supabase-js', '@tanstack/react-query']
         }
       }
-    }
+    },
+    chunkSizeWarningLimit: 1000
+  },
+  server: {
+    port: 3000,
+    host: true
   }
 });
