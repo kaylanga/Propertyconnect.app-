@@ -10,9 +10,6 @@
 [[plugins]]
   package = "@netlify/plugin-functions-core"
 
-[[plugins]]
-  package = "@netlify/build-plugin-vite"
-
 [[redirects]]
   from = "/*"
   to = "/index.html"
