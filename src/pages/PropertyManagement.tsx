@@ -18,6 +18,7 @@ interface Property {
 export const PropertyManagement = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState<Partial<Property>>({
     title: '',
@@ -37,6 +38,7 @@ export const PropertyManagement = () => {
 
   const loadProperties = async () => {
     try {
+      setError(null);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No user found');
 
@@ -49,6 +51,7 @@ export const PropertyManagement = () => {
       setProperties(data || []);
     } catch (error) {
       console.error('Error loading properties:', error);
+      setError('Failed to load properties. Please try again later.');
       await LoggingService.log({
         level: 'error',
         message: 'Failed to load properties',
@@ -62,8 +65,14 @@ export const PropertyManagement = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setError(null);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No user found');
+
+      // Validate required fields
+      if (!formData.title || !formData.location || !formData.price || !formData.property_type) {
+        throw new Error('Please fill in all required fields');
+      }
 
       const { error } = await supabase
         .from('properties')
@@ -87,6 +96,7 @@ export const PropertyManagement = () => {
       await loadProperties();
     } catch (error) {
       console.error('Error adding property:', error);
+      setError(error instanceof Error ? error.message : 'Failed to add property. Please try again later.');
       await LoggingService.log({
         level: 'error',
         message: 'Failed to add property',
@@ -99,6 +109,7 @@ export const PropertyManagement = () => {
     if (!confirm('Are you sure you want to delete this property?')) return;
 
     try {
+      setError(null);
       const { error } = await supabase
         .from('properties')
         .delete()
@@ -108,6 +119,7 @@ export const PropertyManagement = () => {
       await loadProperties();
     } catch (error) {
       console.error('Error deleting property:', error);
+      setError('Failed to delete property. Please try again later.');
       await LoggingService.log({
         level: 'error',
         message: 'Failed to delete property',
@@ -128,6 +140,12 @@ export const PropertyManagement = () => {
         </button>
       </div>
 
+      {error && (
+        <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      )}
+
       {loading ? (
         <div className="flex justify-center items-center h-40">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -141,7 +159,7 @@ export const PropertyManagement = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Title
+                      Title *
                     </label>
                     <input
                       type="text"
@@ -153,15 +171,94 @@ export const PropertyManagement = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Price
+                      Location *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Price *
                     </label>
                     <input
                       type="number"
                       value={formData.price}
                       onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      min="0"
                       required
                     />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Property Type *
+                    </label>
+                    <select
+                      value={formData.property_type}
+                      onChange={(e) => setFormData({ ...formData, property_type: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      required
+                    >
+                      <option value="apartment">Apartment</option>
+                      <option value="house">House</option>
+                      <option value="condo">Condo</option>
+                      <option value="townhouse">Townhouse</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Bedrooms
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.bedrooms}
+                      onChange={(e) => setFormData({ ...formData, bedrooms: Number(e.target.value) })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      min="0"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Bathrooms
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.bathrooms}
+                      onChange={(e) => setFormData({ ...formData, bathrooms: Number(e.target.value) })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      min="0"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Size (sq ft)
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.size_sqft}
+                      onChange={(e) => setFormData({ ...formData, size_sqft: Number(e.target.value) })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      min="0"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={formData.status}
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value as Property['status'] })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    >
+                      <option value="available">Available</option>
+                      <option value="rented">Rented</option>
+                      <option value="sold">Sold</option>
+                    </select>
                   </div>
                 </div>
                 <div className="mb-4">
@@ -173,7 +270,6 @@ export const PropertyManagement = () => {
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     rows={3}
-                    required
                   ></textarea>
                 </div>
                 <div className="flex justify-end">
@@ -207,6 +303,8 @@ export const PropertyManagement = () => {
                     <h3 className="text-lg font-semibold mb-2">{property.title}</h3>
                     <p className="text-gray-600 mb-2">{property.location}</p>
                     <p className="text-blue-600 font-bold mb-2">${property.price.toLocaleString()}</p>
+                    <p className="text-gray-600 mb-2">{property.property_type}</p>
+                    <p className="text-gray-600 mb-2">{property.size_sqft} sq ft</p>
                     <div className="flex justify-between mt-4">
                       <span className="text-sm text-gray-500">
                         {property.bedrooms} beds • {property.bathrooms} baths
