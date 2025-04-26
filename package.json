@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.9.5",
-    "rollup": "^4.9.5",
+    "rollup": "4.9.5",
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.2.0",
     "@paypal/checkout-server-sdk": "^1.0.3",
@@ -131,7 +131,7 @@
     "@types/react-dom": "^18.0.0"
   },
   "engines": {
-    "node": ">=18.20.8",
-    "npm": ">=9.0.0"
+    "node": "16.x",
+    "npm": ">=8.0.0"
   }
 }

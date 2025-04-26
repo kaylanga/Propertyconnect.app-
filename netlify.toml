@@ -1,5 +1,5 @@
 [build]
-  command = "npm install @rollup/rollup-linux-x64-gnu && npm install && npm run build"
+  command = "npm install --platform=linux --arch=x64 @rollup/rollup-linux-x64-gnu && npm install && npm run build"
   publish = "dist"
 
 [[redirects]]
@@ -8,7 +8,7 @@
   status = 200
 
 [build.environment]
-  NODE_VERSION = "18.20.8"
+  NODE_VERSION = "16.20.2"
   NPM_FLAGS = "--legacy-peer-deps"
 
 [build.processing]
