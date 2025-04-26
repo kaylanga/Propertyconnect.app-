@@ -1,27 +1,10 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { visualizer } from 'rollup-plugin-visualizer';
 import path from 'path';
-import viteCompression from 'vite-plugin-compression';
-import tailwindcss from 'tailwindcss';
-import autoprefixer from 'autoprefixer';
 
 export default defineConfig({
   plugins: [
-    react({
-      typescript: {
-        ignoreBuildErrors: true
-      }
-    }),
-    viteCompression({
-      algorithm: 'gzip',
-      ext: '.gz',
-    }),
-    visualizer({
-      open: false,
-      gzipSize: true,
-      brotliSize: true,
-    }),
+    react()
   ],
   resolve: {
     alias: {
@@ -35,24 +18,10 @@ export default defineConfig({
       '@contexts': path.resolve(__dirname, './src/contexts'),
     },
   },
-  css: {
-    postcss: {
-      plugins: [
-        tailwindcss,
-        autoprefixer,
-      ],
-    },
-  },
   build: {
     outDir: 'dist',
     sourcemap: false,
     minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true
-      }
-    },
     rollupOptions: {
       output: {
         manualChunks: {
@@ -60,13 +29,5 @@ export default defineConfig({
         }
       }
     }
-  },
-  server: {
-    port: 3000,
-    host: true,
-  },
-  preview: {
-    port: 3000,
-    host: true,
   }
 });
