@@ -34,6 +34,7 @@
     "react-router-dom": "^6.22.0"
   },
   "devDependencies": {
+    "@netlify/build-plugin-vite": "^1.0.0",
     "@types/node": "^16.18.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
