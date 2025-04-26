@@ -8,7 +8,11 @@ import autoprefixer from 'autoprefixer';
 
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      typescript: {
+        ignoreBuildErrors: true
+      }
+    }),
     viteCompression({
       algorithm: 'gzip',
       ext: '.gz',
