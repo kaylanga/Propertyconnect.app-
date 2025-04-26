@@ -1,5 +1,5 @@
 [build]
-  command = "npm install --platform=linux --arch=x64 @rollup/rollup-linux-x64-gnu && npm install && npm run build"
+  command = "npm install -g @netlify/build-plugin-vite && npm install && npm run build"
   publish = "dist"
 
 [[redirects]]
@@ -10,6 +10,10 @@
 [build.environment]
   NODE_VERSION = "16.20.2"
   NPM_FLAGS = "--legacy-peer-deps"
+  VITE_NODE_VERSION = "16.20.2"
+
+[[plugins]]
+  package = "@netlify/build-plugin-vite"
 
 [build.processing]
   skip_processing = false
