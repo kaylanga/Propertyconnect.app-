@@ -77,106 +77,125 @@ import { useAppStore } from './store';
  */
 const App: FC = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [initError, setInitError] = useState<string | null>(null);
   const { isAuthenticated } = useAppStore();
 
   useEffect(() => {
-    const handleErrors = async () => {
+    const initializeApp = async () => {
       try {
-        await flushManager.flushAll();
-        console.log('System successfully flushed');
+        // Check environment variables
+        const envCheck = checkEnvVariables();
+        if (!envCheck) {
+          throw new Error('Environment variables not properly configured');
+        }
+
+        // Initialize error tracking
+        ErrorTracker.init();
+
+        // Initialize performance monitoring
+        await PerformanceMonitor.measurePageLoad();
+
+        // Report vitals to analytics
+        reportWebVitals(sendToAnalytics);
+
+        // Initialize auto-save service
+        await autoSaveService.initialize();
+
+        // Log successful initialization
+        await LoggingService.log({
+          level: 'info',
+          message: 'Application initialized successfully',
+        });
+
+        setIsLoading(false);
       } catch (error) {
-        console.error('Error during system flush:', error);
+        console.error('Initialization error:', error);
+        setInitError(error instanceof Error ? error.message : 'Failed to initialize application');
         await LoggingService.log({
           level: 'error',
-          message: 'System flush failed',
+          message: 'Application initialization failed',
           metadata: { error },
         });
       }
     };
 
-    // Handle any 305 errors
-    window.addEventListener('unhandledrejection', async (event) => {
-      if (event.reason?.response?.status === 305) {
-        await handleErrors();
-      }
-    });
-
-    const envCheck = checkEnvVariables();
-    if (!envCheck) {
-      console.error('Environment variables not properly configured');
-    }
-
-    // Initialize error tracking
-    ErrorTracker.init();
-
-    // Measure page performance
-    PerformanceMonitor.measurePageLoad().then((metrics) => {
-      console.log('Page Performance Metrics:', metrics);
-    });
-
-    // Report vitals to analytics
-    reportWebVitals(sendToAnalytics);
-
-    // Simulate initialization
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+    initializeApp();
 
     return () => {
-      window.removeEventListener('unhandledrejection', handleErrors);
+      // Cleanup
+      autoSaveService.cleanup();
     };
   }, []);
 
+  if (initError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md w-full p-6 bg-white rounded-lg shadow-lg">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Initialization Error</h2>
+          <p className="text-gray-600 mb-4">{initError}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Initializing application...</p>
+        </div>
       </div>
     );
   }
 
   return (
     <Router>
-      {/* Theme Provider for consistent styling */}
-      <ThemeProvider>
-        {/* Authentication Context Provider */}
-        <AuthProvider>
-          {/* Notification System Provider */}
-          <NotificationProvider>
-            <Layout>
-              <Routes>
-                {/* Public Routes */}
-                <Route path="/" element={<HomePage />} />
-                <Route path="/search" element={<SearchPage />} />
-                <Route path="/property/:id" element={<PropertyDetailPage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-                <Route path="/pricing" element={<PricingPage />} />
-                <Route path="/mortgage-calculator" element={<MortgageCalculatorPage />} />
-                <Route path="/signup" element={<SignUp />} />
-                <Route path="/verify" element={<VerificationForm />} />
+      <DebugProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <NotificationProvider>
+              <Layout>
+                <Routes>
+                  {/* Public Routes */}
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/search" element={<SearchPage />} />
+                  <Route path="/property/:id" element={<PropertyDetailPage />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/pricing" element={<PricingPage />} />
+                  <Route path="/mortgage-calculator" element={<MortgageCalculatorPage />} />
+                  <Route path="/signup" element={<SignUp />} />
+                  <Route path="/verify" element={<VerificationForm />} />
 
-                {/* Protected Routes */}
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/admin/*" element={<AdminLayout />}>
-                  <Route index element={<FinanceDashboard />} />
-                  <Route path="users" element={<UsersManagement />} />
-                  <Route path="properties" element={<PropertiesManagement />} />
-                  <Route path="verifications" element={<VerificationsManagement />} />
-                  <Route path="transactions" element={<TransactionsManagement />} />
-                  <Route path="settings" element={<SystemSettings />} />
-                  <Route path="finance">
+                  {/* Protected Routes */}
+                  <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                  <Route path="/admin/*" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
                     <Route index element={<FinanceDashboard />} />
-                    <Route path="payments" element={<PaymentsManagement />} />
-                    <Route path="wallets" element={<WalletsManagement />} />
-                    <Route path="reports" element={<ReportsManagement />} />
+                    <Route path="users" element={<UsersManagement />} />
+                    <Route path="properties" element={<PropertiesManagement />} />
+                    <Route path="verifications" element={<VerificationsManagement />} />
+                    <Route path="transactions" element={<TransactionsManagement />} />
+                    <Route path="settings" element={<SystemSettings />} />
+                    <Route path="finance">
+                      <Route index element={<FinanceDashboard />} />
+                      <Route path="payments" element={<PaymentsManagement />} />
+                      <Route path="wallets" element={<WalletsManagement />} />
+                      <Route path="reports" element={<ReportsManagement />} />
+                    </Route>
                   </Route>
-                </Route>
-              </Routes>
-            </Layout>
-          </NotificationProvider>
-        </AuthProvider>
-      </ThemeProvider>
+                </Routes>
+              </Layout>
+            </NotificationProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </DebugProvider>
     </Router>
   );
 };
