@@ -1,0 +1,23 @@
+.error-container {
+  padding: 20px;
+  margin: 20px;
+  border: 1px solid #ff0000;
+  border-radius: 4px;
+  background-color: #fff8f8;
+}
+
+.error-container button {
+  padding: 8px 16px;
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.error-container pre {
+  background-color: #f5f5f5;
+  padding: 10px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
