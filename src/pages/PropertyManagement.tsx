@@ -117,5 +117,123 @@ export const PropertyManagement = () => {
   };
 
   return (
+    <div className="max-w-6xl mx-auto p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Property Management</h1>
+        <button
+          onClick={() => setShowAddForm(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Add New Property
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center items-center h-40">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      ) : (
+        <>
+          {showAddForm && (
+            <div className="bg-white rounded-lg shadow p-6 mb-6">
+              <h2 className="text-xl font-semibold mb-4">Add New Property</h2>
+              <form onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Title
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Price
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    rows={3}
+                    required
+                  ></textarea>
+                </div>
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddForm(false)}
+                    className="mr-2 px-4 py-2 border border-gray-300 rounded-md"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  >
+                    Save Property
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {properties.length === 0 ? (
+              <div className="col-span-full text-center py-8 text-gray-500">
+                No properties found. Add your first property to get started.
+              </div>
+            ) : (
+              properties.map((property) => (
+                <div key={property.id} className="bg-white rounded-lg shadow overflow-hidden">
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold mb-2">{property.title}</h3>
+                    <p className="text-gray-600 mb-2">{property.location}</p>
+                    <p className="text-blue-600 font-bold mb-2">${property.price.toLocaleString()}</p>
+                    <div className="flex justify-between mt-4">
+                      <span className="text-sm text-gray-500">
+                        {property.bedrooms} beds • {property.bathrooms} baths
+                      </span>
+                      <span className={`text-sm px-2 py-1 rounded ${
+                        property.status === 'available' ? 'bg-green-100 text-green-800' :
+                        property.status === 'rented' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {property.status.charAt(0).toUpperCase() + property.status.slice(1)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="border-t border-gray-200 p-4 flex justify-end">
+                    <button
+                      onClick={() => handleDelete(property.id)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </>
+      )}
+    </div>
   );
 }; 
