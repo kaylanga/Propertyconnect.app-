@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -63,7 +63,7 @@ import { Properties } from './pages/Properties';
 import { PropertyDetails } from './pages/PropertyDetails';
 import { About } from './pages/About';
 import { Contact } from './pages/Contact';
-import { useAppStore } from '@/store';
+import { useAppStore } from './store';
 
 /**
  * Main Application Component
@@ -75,7 +75,7 @@ import { useAppStore } from '@/store';
  * - Authentication State
  * - Notification System
  */
-const App: React.FC = () => {
+const App: FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { isAuthenticated } = useAppStore();
 
@@ -143,50 +143,37 @@ const App: React.FC = () => {
         <AuthProvider>
           {/* Notification System Provider */}
           <NotificationProvider>
-            <Routes>
-              <Route
-                path="/"
-                element={<Navigate to="/properties" replace />}
-              />
-              <Route
-                path="/properties"
-                element={<Properties />}
-              />
-              <Route path="/properties/:id" element={<PropertyDetails />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/verification" element={<VerificationForm />} />
-              <Route path="/admin" element={<AdminPanel />} />
-              <Route path="/property-management" element={<PropertyManagement />} />
-              <Route path="/client-dashboard" element={<ClientDashboard />} />
-              <Route path="/landlord-dashboard" element={<LandlordDashboard />} />
-              <Route path="/broker-dashboard" element={<BrokerDashboard />} />
-              <Route path="/messages-page" element={<MessagesPage />} />
-              <Route path="/wallet-page" element={<WalletPage />} />
-              
-              {/* Authentication Routes */}
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              
-              {/* Protected Routes - Require Authentication */}
-              <Route element={<ProtectedRoute />}>
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/bookings" element={<BookingsPage />} />
-                <Route path="/alerts" element={<AlertsPage />} />
-                <Route path="/favorites" element={<FavoritesPage />} />
-              </Route>
-              
-              {/* Admin Routes - Require Admin Role */}
-              <Route element={<AdminRoute />}>
-                <Route path="/admin/*" element={<AdminDashboard />} />
-              </Route>
-              
-              {/* Error Routes */}
-              <Route path="/404" element={<NotFoundPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
+            <Layout>
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<HomePage />} />
+                <Route path="/search" element={<SearchPage />} />
+                <Route path="/property/:id" element={<PropertyDetailPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/pricing" element={<PricingPage />} />
+                <Route path="/mortgage-calculator" element={<MortgageCalculatorPage />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/verify" element={<VerificationForm />} />
+
+                {/* Protected Routes */}
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/admin/*" element={<AdminLayout />}>
+                  <Route index element={<FinanceDashboard />} />
+                  <Route path="users" element={<UsersManagement />} />
+                  <Route path="properties" element={<PropertiesManagement />} />
+                  <Route path="verifications" element={<VerificationsManagement />} />
+                  <Route path="transactions" element={<TransactionsManagement />} />
+                  <Route path="settings" element={<SystemSettings />} />
+                  <Route path="finance">
+                    <Route index element={<FinanceDashboard />} />
+                    <Route path="payments" element={<PaymentsManagement />} />
+                    <Route path="wallets" element={<WalletsManagement />} />
+                    <Route path="reports" element={<ReportsManagement />} />
+                  </Route>
+                </Route>
+              </Routes>
+            </Layout>
           </NotificationProvider>
         </AuthProvider>
       </ThemeProvider>

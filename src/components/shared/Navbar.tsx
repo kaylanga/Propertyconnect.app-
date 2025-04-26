@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Home, Search, Menu, X, User, LogOut } from 'lucide-react';
+import { Home, Search, Menu, X, User, LogOut, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { cn } from '../../utils/cn';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface NavbarProps {
   transparent?: boolean;
@@ -12,14 +13,15 @@ interface NavbarProps {
   setLanguage: (language: string) => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ 
+const Navbar = ({ 
   transparent = false,
   currency,
   setCurrency,
   language,
   setLanguage
-}) => {
+}: NavbarProps) => {
   const { user, isAuthenticated, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);

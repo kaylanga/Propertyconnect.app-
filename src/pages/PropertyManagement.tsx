@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { LoggingService } from '../services/LoggingService';
@@ -13,9 +14,10 @@ interface Property {
   bathrooms: number;
   size_sqft: number;
   status: 'available' | 'rented' | 'sold';
+  owner_id?: string;
 }
 
-export const PropertyManagement = () => {
+export const PropertyManagement: React.FC = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
