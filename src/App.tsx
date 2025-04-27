@@ -1,21 +1,13 @@
 import React, { FC, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
-import { ThemeProvider } from './contexts/ThemeContext';
+import { ThemeProvider, createTheme } from '@mui/material';
+import CssBaseline from '@mui/material/CssBaseline';
 import { NotificationProvider } from './contexts/NotificationContext';
-import { Layout } from './components/Layout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Login } from './pages/Login';
 import { SignUp } from './pages/SignUp';
 import { Dashboard } from './pages/Dashboard';
-import { VerificationForm } from './pages/VerificationForm';
-import { AdminPanel } from './pages/AdminPanel';
-import { PropertyManagement } from './pages/PropertyManagement';
-
-// Layout components
-import MainLayout from './layouts/MainLayout';
-import DashboardLayout from './layouts/DashboardLayout';
-import AdminLayout from './layouts/AdminLayout';
 
 // Public pages
 import HomePage from './pages/HomePage';
@@ -58,6 +50,18 @@ import { ErrorTracker } from './utils/monitoring/ErrorTracker';
 import { reportWebVitals } from './utils/monitoring/Vitals';
 import { sendToAnalytics } from './utils/monitoring/Analytics';
 import { useAppStore } from './store';
+
+const theme = createTheme({
+  palette: {
+    mode: 'light',
+    primary: {
+      main: '#1976d2',
+    },
+    secondary: {
+      main: '#dc004e',
+    },
+  },
+});
 
 /**
  * Main Application Component
@@ -153,7 +157,8 @@ const App: FC = () => {
 
   return (
     <DebugProvider>
-      <ThemeProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
         <AuthProvider>
           <NotificationProvider>
             <Router>
@@ -183,7 +188,7 @@ const App: FC = () => {
                 <Route
                   path="/client/dashboard"
                   element={
-                    <ProtectedRoute roles={['USER']}>
+                    <ProtectedRoute roles={['client']}>
                       <ClientDashboard />
                     </ProtectedRoute>
                   }
@@ -193,7 +198,7 @@ const App: FC = () => {
                 <Route
                   path="/landlord/dashboard"
                   element={
-                    <ProtectedRoute roles={['LANDLORD']}>
+                    <ProtectedRoute roles={['landlord']}>
                       <LandlordDashboard />
                     </ProtectedRoute>
                   }
@@ -203,7 +208,7 @@ const App: FC = () => {
                 <Route
                   path="/broker/dashboard"
                   element={
-                    <ProtectedRoute roles={['BROKER']}>
+                    <ProtectedRoute roles={['broker']}>
                       <BrokerDashboard />
                     </ProtectedRoute>
                   }
@@ -213,7 +218,7 @@ const App: FC = () => {
                 <Route
                   path="/admin"
                   element={
-                    <ProtectedRoute roles={['ADMIN']}>
+                    <ProtectedRoute roles={['admin']}>
                       <AdminDashboard />
                     </ProtectedRoute>
                   }
@@ -221,7 +226,7 @@ const App: FC = () => {
                 <Route
                   path="/admin/users"
                   element={
-                    <ProtectedRoute roles={['ADMIN']}>
+                    <ProtectedRoute roles={['admin']}>
                       <UsersManagement />
                     </ProtectedRoute>
                   }
@@ -229,7 +234,7 @@ const App: FC = () => {
                 <Route
                   path="/admin/properties"
                   element={
-                    <ProtectedRoute roles={['ADMIN']}>
+                    <ProtectedRoute roles={['admin']}>
                       <PropertiesManagement />
                     </ProtectedRoute>
                   }
@@ -237,7 +242,7 @@ const App: FC = () => {
                 <Route
                   path="/admin/verifications"
                   element={
-                    <ProtectedRoute roles={['ADMIN']}>
+                    <ProtectedRoute roles={['admin']}>
                       <VerificationsManagement />
                     </ProtectedRoute>
                   }
@@ -245,7 +250,7 @@ const App: FC = () => {
                 <Route
                   path="/admin/transactions"
                   element={
-                    <ProtectedRoute roles={['ADMIN']}>
+                    <ProtectedRoute roles={['admin']}>
                       <TransactionsManagement />
                     </ProtectedRoute>
                   }
@@ -253,7 +258,7 @@ const App: FC = () => {
                 <Route
                   path="/admin/settings"
                   element={
-                    <ProtectedRoute roles={['ADMIN']}>
+                    <ProtectedRoute roles={['admin']}>
                       <SystemSettings />
                     </ProtectedRoute>
                   }
@@ -263,7 +268,7 @@ const App: FC = () => {
                 <Route
                   path="/admin/finance"
                   element={
-                    <ProtectedRoute roles={['ADMIN']}>
+                    <ProtectedRoute roles={['admin']}>
                       <FinanceDashboard />
                     </ProtectedRoute>
                   }
@@ -271,7 +276,7 @@ const App: FC = () => {
                 <Route
                   path="/admin/finance/payments"
                   element={
-                    <ProtectedRoute roles={['ADMIN']}>
+                    <ProtectedRoute roles={['admin']}>
                       <PaymentsManagement />
                     </ProtectedRoute>
                   }
@@ -279,7 +284,7 @@ const App: FC = () => {
                 <Route
                   path="/admin/finance/wallets"
                   element={
-                    <ProtectedRoute roles={['ADMIN']}>
+                    <ProtectedRoute roles={['admin']}>
                       <WalletsManagement />
                     </ProtectedRoute>
                   }
@@ -287,7 +292,7 @@ const App: FC = () => {
                 <Route
                   path="/admin/finance/reports"
                   element={
-                    <ProtectedRoute roles={['ADMIN']}>
+                    <ProtectedRoute roles={['admin']}>
                       <ReportsManagement />
                     </ProtectedRoute>
                   }
