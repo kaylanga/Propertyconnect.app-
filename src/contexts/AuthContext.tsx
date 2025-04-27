@@ -7,17 +7,18 @@ import {
   onAuthStateChanged
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
+import { supabase } from '../lib/supabase';
 
 // Define user roles type
-type UserRole = 'client' | 'landlord' | 'broker' | 'admin';
+export type UserRole = 'client' | 'landlord' | 'broker' | 'admin';
 
 // Define user type
-interface User {
+export interface User {
   id: string;
-  name: string;
   email: string;
   role: UserRole;
-  avatar?: string;
+  name?: string;
+  avatar_url?: string;
 }
 
 /**
@@ -26,6 +27,7 @@ interface User {
  */
 interface AuthContextType {
   user: User | null;          // Current user data
+  isAuthenticated: boolean;   // Indicates if the user is authenticated
   loading: boolean;           // Loading state
   error: string | null;       // Error message if any
   login: (email: string, password: string) => Promise<void>;
@@ -94,15 +96,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Listen for auth state changes
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
-      if (firebaseUser) {
-        // Fetch additional user data from your database
-        const userData = await fetchUserData(firebaseUser.uid);
+    // Check active sessions and sets the user
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
         setUser({
-          id: firebaseUser.uid,
-          email: firebaseUser.email!,
-          emailVerified: firebaseUser.emailVerified,
-          ...userData
+          id: session.user.id,
+          email: session.user.email!,
+          role: session.user.user_metadata.role || 'client',
+          name: session.user.user_metadata.name,
+          avatar_url: session.user.user_metadata.avatar_url,
+        });
+      }
+      setLoading(false);
+    });
+
+    // Listen for changes on auth state
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email!,
+          role: session.user.user_metadata.role || 'client',
+          name: session.user.user_metadata.name,
+          avatar_url: session.user.user_metadata.avatar_url,
         });
       } else {
         setUser(null);
@@ -110,7 +126,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     });
 
-    return unsubscribe;
+    return () => subscription.unsubscribe();
   }, []);
 
   /**
@@ -230,6 +246,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const value = {
     user,
+    isAuthenticated: !!user,
     loading,
     error,
     login,
